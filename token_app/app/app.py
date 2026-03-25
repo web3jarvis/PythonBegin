@@ -1,6 +1,5 @@
 # -------------------------- Imports -------------------------
 from datetime import datetime
-
 from flask import Flask, render_template, request, redirect, url_for
 from ape import networks, accounts
 from db import Base, SessionLocal, engine
@@ -12,10 +11,6 @@ app = Flask(__name__)
 
 # ------------------------- Database Setup -------------------------
 Base.metadata.create_all(bind=engine)
-
-# # --------------------------- Ape Framework Setup -------------------------
-# provider = networks.ethereum.local.use_provider("foundry")
-# provider.connect()
 
 # --------------------------- Flask Routes -------------------------
 
@@ -93,4 +88,4 @@ def transfer():
 # --------------------------- Main Entry Point -------------------------
 if __name__ == "__main__":
     with networks.ethereum.local.use_provider("foundry"):
-        app.run(debug=False, port=5000)  # debug=False important hai
+        app.run(debug=False, port=5000)
