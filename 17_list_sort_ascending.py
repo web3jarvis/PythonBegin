@@ -4,7 +4,6 @@ input_list = [int(i) for i in input("Enter the elements separated by space: ").s
 output_list = []
 
 while len(input_list) > 0:
-# for j in input_list:
     smallest_one = min(input_list)
     output_list.append(smallest_one)
     input_list.remove(smallest_one)

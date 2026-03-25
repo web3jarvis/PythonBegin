@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Explorer</title>
+</head>
+<body style="background-color: lightblue;">
+    <div style="text-align:center;">
+        <h2>Blockchain Explorer</h2>
+        <a href="/">Home</a>  | 
+        <a href="/transactions">Create Transaction</a>  | 
+        <a href="/blockchain">Blockchain Explorer</a>
+        <hr>
+    </div>
+        
+    {% for i in blocks %}
+        <p>Block Index: {{ i.index_number }}</p>
+        <p>Timestamp: {{ i.timestamp }}</p>
+        <p>Transaction Data: {{ i.transactions }}</p>
+        <p>Previous Hash: {{i.previous_hash}}</p>
+        <p>Block Hash: {{i.block_hash}}</p>
+        <p>Nonce: {{i.nonce}}</p>
+        <hr>
+    {% endfor %}
+        
+</body>
+</html>

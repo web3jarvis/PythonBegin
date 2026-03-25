@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Transaction</title>
+</head>
+<body style="background-color: lightblue; text-align:center;">
+    <h2>Create Transaction</h2>
+    <a href="/">Home</a>  |  
+    <a href="/transactions">Create Transaction</a>  | 
+    <a href="/blockchain">Blockchain Explorer</a>
+    <hr>
+
+    <form method="POST" action="/create_transactions/{{ name }}">
+        
+        <label>Sender:</label>
+        {% if name == None %}
+            <input type="text" name="sender"><br><br>
+        {% else %}
+            <input type="text" name="sender" value="{{name}}" placeholder="{{name}}"><br><br>
+        {% endif %}
+
+
+        <label>Receiver:</label>
+        <input type="text" name="receiver" required><br><br>
+
+        <label>Amount:</label>
+        <input type="text" name="amount" required><br><br>
+
+        <button type="submit">Send</button>
+
+    </form>
+    <br><br>
+    <a href="/blocks"><button type="submit">Mine Blocks</button></a>
+    {% if mempool %}
+        <h2>Block Mined Successfully, Go to Blockchain Explorer!</h2>
+    {% endif %}
+    <a href="/blockchain"><button type="submit">Check Blockchain Explorer</button></a>
+</body>
+</html>

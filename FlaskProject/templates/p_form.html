@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Form</title>
+</head>
+<body>
+    <h1>USER FORM</h1>
+    <form method="POST">
+
+        <label>Enter Name:</label>
+        <input type="text" name="name_h"><br><br>
+
+        <label>Enter Email:</label>
+        <input type="text" name="email_h"><br><br>
+
+        <button type="submit">Submit</button>
+
+    </form>
+
+    {% if msg %}
+        <h2>{{ msg }}</h2>
+    {% endif %}
+
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web App</title>
+</head>
+<body style="background-color: lightblue; text-align:center;">
+
+    <h1>WELCOME TO BLOCKCHAIN WEB APP</h1>
+    <a href="/">Home</a>  |  
+    <a href="/transactions">Create Transaction</a>  |  
+    <a href="/blockchain">Blockchain Explorer</a>
+    <hr>
+    
+    <form method="POST" action="/wallet" style="margin-top: 50px;">
+        <input type="text" name="name" placeholder="Enter wallet name" required>
+        <button type="submit">Generate Wallet</button>
+    </form>
+    
+    {% if name %}
+        <hr>
+            <h2 >NEW WALLET GENERATED</h2>
+            <h3>Your Wallet Name: </h3>
+            <p>{{ name }}</p>
+
+            <h3>Wallet Private Key: </h3>
+            <p>{{ private_key }}</p>
+
+            <h3>Wallet Public Key: </h3>
+            <p>{{ public_key }}</p>
+        <hr>
+
+        <a href="/transactions/{{ name }}">
+            <button type="submit">Create Transactions</button>
+        </a>
+    {% endif %}
+
+</body>
+</html>
