@@ -8,6 +8,11 @@
 <body>
 
     <h1>Dashboard</h1>
+    
+    <a href="/">Home</a>  |  
+    <a href="/">Create Wallet</a>  |  
+    <a href="/transfer">Transfer Token</a>
+    <hr>
 
     <p>Welcome, {{ user.username }}!</p>
     <p>Wallet Address: {{ user.wallet_address }}</p>
@@ -17,7 +22,7 @@
     <ul>
         {% for tx in transactions %}
             <li>
-                {{ tx.sender_id }} → {{ tx.recipient_id }} : {{ tx.amount }}
+                {{ tx.sender.username }} → {{ tx.recipient.username }} : {{ tx.amount }}
             </li>
         {% endfor %}
     </ul>
