@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+<body>
+
+    <h1>Dashboard</h1>
+
+    <p>Welcome, {{ user.username }}!</p>
+    <p>Wallet Address: {{ user.wallet_address }}</p>
+    <p>Balance: {{ balance }}</p>
+    <hr>
+    <h2>Transaction History:</h2>
+    <ul>
+        {% for tx in transactions %}
+            <li>
+                {{ tx.sender_id }} → {{ tx.recipient_id }} : {{ tx.amount }}
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

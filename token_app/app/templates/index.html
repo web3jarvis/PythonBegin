@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token App</title>
+</head>
+<body>
+    <h1>Welcome to the Token App!</h1>
+    <a href="/">Home</a>  |  
+    <a href="/">Create Wallet</a>  |  
+    <a href="/transfer">Transfer Token</a>
+    <hr>
+    
+        <h2>Create Wallet</h2>
+        <form method="POST" action="/create_wallet" style="margin-top: 50px;">
+            <input type="text" name="username" placeholder="Username" required>
+            <button type="submit">Create</button>
+        </form>
+        
+        {% if username %}
+            <hr>
+            <h2>New wallet generated with username: {{ username }}!</h2>
+            <p>Wallet Address: {{ wallet_address }}</p>
+            <p>Public Key: {{ public_key }}</p>
+            <hr>
+            <a href="/dashboard/{{ username }}">Go to Dashboard</a>
+        {% endif %}
+</body>
+</html>
