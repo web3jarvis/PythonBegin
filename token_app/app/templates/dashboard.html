@@ -11,18 +11,42 @@
     
     <a href="/">Home</a>  |  
     <a href="/">Create Wallet</a>  |  
-    <a href="/transfer">Transfer Token</a>
+    <a href="/create_token">Create Token</a>  |  
+    <a href="/transfer">Transfer Token</a>  |   
+    <form method="GET" action="/dashboard_redirect" style="display:inline;">
+        <input type="text" name="username" placeholder="Enter username">
+        <button type="submit">Dashboard</button>
+    </form>
     <hr>
 
-    <p>Welcome, {{ user.username }}!</p>
+    <h2>Welcome, {{ user.username }}!</h2>
     <p>Wallet Address: {{ user.wallet_address }}</p>
-    <p>Balance: {{ balance }}</p>
+    <hr>
+    <h2>Token Balances:</h2>
+        {% if token_balances %}
+            {% for tb in token_balances %}
+                <p>{{ tb['token'].token_name }} ({{ tb['token'].token_symbol }}) — Balance: {{ tb['balance'] }}</p>
+            {% endfor %}
+        {% else %}
+            <p>No tokens yet.</p>
+        {% endif %}
+    <hr>
+    <h2>Created Tokens:</h2>
+    {% if created_tokens %}
+        <ul>
+            {% for token in created_tokens %}
+                <li>{{ token.token_name }} ({{ token.token_symbol }})</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>You haven't created any tokens yet.</p>
+    {% endif %}
     <hr>
     <h2>Transaction History:</h2>
     <ul>
         {% for tx in transactions %}
             <li>
-                {{ tx.sender.username }} → {{ tx.recipient.username }} : {{ tx.amount }}
+                {{ tx.sender.username }} → {{ tx.recipient.username }} : {{ tx.amount }} {{ tx.token.token_symbol }} ({{ tx.timestamp.strftime('%Y-%m-%d %H:%M:%S') }} UTC)
             </li>
         {% endfor %}
     </ul>
