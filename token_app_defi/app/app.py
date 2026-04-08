@@ -3,8 +3,8 @@ from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash
 from ape import networks, accounts
 from db import Base, SessionLocal, engine
-from models import Token, User, Transaction, Wallet
-from blockchain.ape_util import deploy_token, transfer_tokens, get_contract
+from models import AMM_Table, Token, User, Transaction, Wallet
+from blockchain.ape_util import deploy_token, transfer_tokens, get_contract, swap_tokens
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import secrets
@@ -277,6 +277,7 @@ def transfer(username):
             flash("Transfer successful!", "success")
         except Exception as e:
             db_session.rollback()
+            flash("Transfer failed: " + str(e), "error")
         finally:
             db_session.close()
 
@@ -295,6 +296,49 @@ def logout():
     logout_user()
     return redirect(url_for("login"))
 
+@app.route("/swap/<username>", methods=['GET', 'POST'])
+@login_required
+def swap(username):
+    if current_user.username != username:
+        return "Unauthorized", 403
+    
+    db_session = SessionLocal()
+    user = db_session.query(User).filter_by(username=username).first()
+    user_wallet = db_session.query(Wallet).filter_by(user_wallet=current_user.id).first()
+    amm = db_session.query(AMM_Table).first()
+    
+    if not user_wallet:
+        flash("Please create a wallet first!", "error")
+        return redirect(url_for('dashboard', username=username))
+    
+    if not amm:
+        flash("No AMM found. Please ask the admin to deploy an AMM first!", "error")
+        return redirect(url_for('dashboard', username=username))
+
+    if request.method == 'POST':
+        from_token = request.form['from_token']
+        amount = float(request.form['amount'])
+        
+        if amount <= 0:
+            flash("Invalid amount!", "error")
+            return redirect(url_for('swap', username=username))
+        
+        try:
+            tx_hash = swap_tokens(
+                sender_id=user.id - 1, 
+                amm_address=amm.amm_address, 
+                from_token=from_token,
+                amount=amount)
+            flash("Swap successful! Transaction hash: " + str(tx_hash), "success")
+        except Exception as e:
+            flash("Swap failed: " + str(e), "error")
+        finally:
+            db_session.close()
+        
+        return redirect(url_for('swap', username=username))
+
+    db_session.close()
+    return render_template('swap.html', user=current_user, amm=amm, wallet=user_wallet)
 
 # --------------------------- Main Entry Point -------------------------
 if __name__ == "__main__":

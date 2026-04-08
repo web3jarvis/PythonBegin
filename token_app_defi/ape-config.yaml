@@ -1,0 +1,11 @@
+name: token_app
+
+plugins:
+  - name: solidity
+  - name: foundry
+
+ethereum:
+  default_network: local
+
+foundry:
+  host: http://127.0.0.1:8545

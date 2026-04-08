@@ -189,3 +189,35 @@
         
 # nums = [5, 12, 7, 18, 3]
 # print({i:i*i for i in nums if i>10})
+
+# import sys
+# print(sys.version)
+
+# print("Hello World!", end=" ")
+# print("I will print on the same line.")
+
+# x = "awesome"
+# def myfunc():
+#   x = "fantastic"
+#   print("Python is " + x)
+# myfunc()
+# print("Python is " + x)
+
+# x = 5
+# print(type(x))
+
+# x = 35e3
+# y = 12E4
+# z = -87.7e100
+
+# print(x)
+# print(y)
+# print(z)
+
+# x = 3+5j
+# y = 5j
+# z = -5j
+
+# print(x)
+# print(type(y))
+# print(type(z))

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swap</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="inner-page">
+
+    <nav class="navbar">
+        <a href="/dashboard/{{ user.username }}">🪙 Home</a>
+        <span class="sep">|</span>
+        {% if not wallet %}
+            <a href="/create_wallet/{{ user.username }}">Create Wallet</a>
+            <span class="sep">|</span>
+        {% endif %}
+        <a href="/create_token/{{ user.username }}">Create Token</a>
+        <span class="sep">|</span>
+        <a href="/transfer/{{ user.username }}">Transfer Token</a>
+        <span class="sep">|</span>
+        <a href="/swap/{{ user.username }}">Swap</a>
+        <span class="sep">|</span>
+        <a href="/logout">Logout</a>
+        <span class="sep">|</span>
+        <span class="current-user">👤 {{ user.username }}</span>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="flash-{{ category }}">
+                {{ "⚠️" if category == "error" else "✅" }} {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+
+<div class="page-title">Swap Tokens</div>
+
+<div class="section">
+    <form action="/swap/{{ user.username }}" method="post">
+        <div class="form-group">
+            <label>From Token</label>
+            <select name="from_token">
+                <option value="A">TokenA</option>
+                <option value="B">TokenB</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Amount</label>
+            <input type="number" name="amount" placeholder="Enter amount" min="1" required>
+        </div>
+        <button type="submit">🔄 Swap</button>
+    </form>
+</div>
+
+
+</body>
+</html>
