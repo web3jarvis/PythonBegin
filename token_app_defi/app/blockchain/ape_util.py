@@ -1,12 +1,28 @@
 from ape import accounts
-from ape.managers.project import LocalProject
-import pathlib
+from ape import project
+from ape.contracts import ContractInstance
+from ape.types import ContractType
+import pathlib, json
 
-ROOT = pathlib.Path(__file__).parent.parent.parent
-project = LocalProject(ROOT)
+ROOT = pathlib.Path("C:/PythonBegin/token_app_defi")
+
+def _load_contract(name, address):
+
+    artifact_path =ROOT / ".build" / "__local__.json"
+    with artifact_path.open() as f:
+        contract_data = json.load(f)
+        contract_type = contract_data.get("contractTypes",{}).get(name)
+        final_contract_type = ContractType.model_validate(contract_type)
+        print(f"Loaded contract type for {name}: {final_contract_type}")
+    return ContractInstance(contract_type=final_contract_type, address=address)
+    
+    # artifact_path = ROOT / ".build" / "__local__.json"
+    # with open(artifact_path) as f:
+    #     contract_type = ContractType.model_validate(json.load(f))
+    # return ContractInstance(address, contract_type)
 
 def get_contract(contract_address):
-    return project.Token.at(contract_address)
+    return _load_contract("Token", contract_address)
 
 def transfer_tokens(sender_id, recipient_address, amount, contract_address):
     account = accounts.test_accounts[sender_id]
@@ -25,7 +41,7 @@ def deploy_amm(owner_id, tokenA_address, tokenB_address):
     return amm.address
 
 def get_amm_contract(amm_address):
-    return project.AMM.at(amm_address)
+    return _load_contract("AMM", amm_address)
 
 def add_liquidity(sender_id, amm_address, amountA, amountB):
     account = accounts.test_accounts[sender_id]

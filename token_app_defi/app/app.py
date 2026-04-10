@@ -118,10 +118,13 @@ def dashboard(username):
     token_balances = []
     if wallets:
         for token in all_tokens:
-            balance = get_contract(token.contract_address).balanceOf(wallets.wallet_address)
-            if int(balance) > 0:
-                token_balances.append({"token": token, "balance": int(balance)})
-
+            try:
+                balance = get_contract(token.contract_address).balanceOf(wallets.wallet_address)
+                if int(balance) > 0:
+                    token_balances.append({"token": token, "balance": int(balance)})
+            except Exception as e:
+                pass
+            
     all_transactions = user.sent_tx + user.received_tx
     all_transactions.sort(key=sort_by_timestamp, reverse=True)
     
@@ -232,10 +235,13 @@ def transfer(username):
     tokens_with_balance = {}
     if user_wallet:
         for token in all_tokens:
-            balance = int(get_contract(token.contract_address).balanceOf(user_wallet.wallet_address))
-            if balance > 0:
-                tokens_with_balance[token.token_name] = balance
-    
+            try:
+                balance = int(get_contract(token.contract_address).balanceOf(user_wallet.wallet_address))
+                if balance > 0:
+                    tokens_with_balance[token.token_name] = balance
+            except Exception as e:
+                pass
+
     transferable_tokens = [t for t in all_tokens if t.token_name in tokens_with_balance]
     
     if request.method == 'POST':
@@ -332,6 +338,7 @@ def swap(username):
             flash("Swap successful! Transaction hash: " + str(tx_hash), "success")
         except Exception as e:
             flash("Swap failed: " + str(e), "error")
+            print(f"[SWAP ERROR] {e}")
         finally:
             db_session.close()
         

@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "./Token.sol";
 
+
 contract AMM {
     Token public tokenA;
     Token public tokenB;
@@ -22,7 +23,7 @@ contract AMM {
         reserveB += amountB;
     }
 
-    function swapAForB(uint256 amountA) public {
+    function swapAForB(uint256 amountA) public returns (uint256) {
         require(tokenA.transferFrom(msg.sender, address(this), amountA), "Transfer of tokenA failed");
         
         uint256 amountB = (amountA * reserveB) / (reserveA + amountA);
@@ -32,9 +33,11 @@ contract AMM {
         
         reserveA += amountA;
         reserveB -= amountB;
+
+        return amountB;
     }
 
-    function swapBForA(uint256 amountB) public {
+    function swapBForA(uint256 amountB) public returns (uint256) {
         require(tokenB.transferFrom(msg.sender, address(this), amountB), "Transfer of tokenB failed");
         
         uint256 amountA = (amountB * reserveA) / (reserveB + amountB);
@@ -44,5 +47,7 @@ contract AMM {
         
         reserveB += amountB;
         reserveA -= amountA;
+
+        return amountA;
     }
 }
