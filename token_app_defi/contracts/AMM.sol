@@ -15,12 +15,13 @@ contract AMM {
         tokenB = Token(_tokenB);
     }
 
-    function addLiquidity(uint256 amountA, uint256 amountB) public {
+    function addLiquidity(uint256 amountA, uint256 amountB) public returns (bool) {
         require(tokenA.transferFrom(msg.sender, address(this), amountA), "Transfer of tokenA failed");
         require(tokenB.transferFrom(msg.sender, address(this), amountB), "Transfer of tokenB failed");
         
         reserveA += amountA;
         reserveB += amountB;
+        return true;
     }
 
     function swapAForB(uint256 amountA) public returns (uint256) {

@@ -105,7 +105,6 @@ def dashboard(username):
         return "User not found", 404
     
     wallets = db_session.query(Wallet).filter_by(user_wallet=user.id).first()
-    
     created_tokens = db_session.query(Token).filter_by(owner_id=user.id).all()
     received_token_ids = [tx.token_id for tx in user.received_tx]
     received_tokens = db_session.query(Token).filter(Token.id.in_(received_token_ids)).all()
@@ -139,28 +138,29 @@ def dashboard(username):
 @app.route('/create_wallet/<username>', methods=['GET', 'POST'])
 @login_required
 def create_wallet(username):
-        username = username
-        if current_user.username != username:
-            return "Unauthorized", 403
+    username = username
+    if current_user.username != username:
+        return "Unauthorized", 403
         
-        db_session = SessionLocal()
+    db_session = SessionLocal()
+    existing_wallet = db_session.query(Wallet).filter_by(
+                                        user_wallet=db_session.query(User).filter_by(
+                                                                        username=username).first().id).first()
+    if existing_wallet:
+        db_session.close()
+        return redirect(url_for('dashboard', username=username))
         
-        existing_wallet = db_session.query(Wallet).filter_by(user_wallet=db_session.query(User).filter_by(username=username).first().id).first()
-        if existing_wallet:
-            db_session.close()
-            return redirect(url_for('dashboard', username=username))
-        
-        account = accounts.test_accounts[len(db_session.query(Wallet).all())]
-        new_user_wallet = Wallet(
+    account = accounts.test_accounts[len(db_session.query(Wallet).all())]
+    new_user_wallet = Wallet(
                             wallet_address=account.address, 
                             public_key=account.public_key,
                             timestamp=datetime.now(),
                             user_wallet=db_session.query(User).filter_by(username=username).first().id)
-        db_session.add(new_user_wallet)
-        db_session.commit()
-        db_session.close()
+    db_session.add(new_user_wallet)
+    db_session.commit()
+    db_session.close()
 
-        return redirect(url_for('dashboard', username=username))
+    return redirect(url_for('dashboard', username=username))
     
 # --------------------------- Create Token Route -------------------------
 @app.route('/create_token/<username>', methods=['GET', 'POST'])
