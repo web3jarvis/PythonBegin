@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swap Tokens — TokenApp</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="inner-page">
+
+    <nav class="navbar">
+        <a href="/dashboard/{{ username }}">🪙 Home</a>
+        <span class="sep">|</span>
+        <a href="/create_token/{{ username }}">Create Token</a>
+        <span class="sep">|</span>
+        <a href="/transfer/{{ username }}">Transfer Token</a>
+        <span class="sep">|</span>
+        <a href="/create_pool/{{ username }}">Create Pool</a>
+        <span class="sep">|</span>
+        <a href="/swap/{{ username }}">Swap</a>
+        <span class="sep">|</span>
+        <a href="/logout">Logout</a>
+        <span class="sep">|</span>
+        <span class="current-user">👤 {{ username }}</span>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="flash-{{ category }}">
+                {{ "⚠️" if category == "error" else "✅" }} {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <div class="page-title">🔄 Swap Tokens</div>
+    
+    <div class="section">
+        <p style="margin-bottom: 20px;">Instantly trade tokens from the live pools.</p>
+        
+        <form method="POST" action="{{ url_for('swap', username=username) }}" class="form">
+            
+            <div class="form-group">
+                <label>1. Token you want to PAY</label>
+                <select name="from_token" required>
+                    <option value="" disabled selected>-- Select Token --</option>
+                    {% for token in active_tokens %}
+                        <option value="{{ token.contract_address }}">{{ token.token_symbol }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>2. Amount to Pay</label>
+                <input type="number" name="from_amount" placeholder="Enter amount (e.g. 10)" min="0.0001" step="any" required>
+            </div>
+
+            <div style="text-align: center; margin: 15px 0; font-size: 20px;">
+                ⬇️
+            </div>
+
+            <div class="form-group">
+                <label>3. Token you want to RECEIVE</label>
+                <select name="to_token" required>
+                    <option value="" disabled selected>-- Select Token --</option>
+                    {% for token in active_tokens %}
+                        <option value="{{ token.contract_address }}">{{ token.token_symbol }}</option>
+                    {% endfor %}
+                </select>
+                <p style="font-size: 12px; color: #9ca3af; margin-top: 6px;">
+                    ℹ️ The smart contract will automatically calculate the amount you receive based on current pool reserves.
+                </p>
+            </div>
+
+            <button type="submit" {% if active_tokens|length < 2 %}disabled style="opacity:0.5; cursor:not-allowed;"{% endif %}>
+                Swap
+            </button>
+
+        </form>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const flashMessages = document.querySelectorAll('[class^="flash-"]');
+            if (flashMessages.length > 0) {
+                setTimeout(() => {
+                    flashMessages.forEach(msg => {
+                        msg.style.transition = "opacity 0.5s ease";
+                        msg.style.opacity = "0";
+                        setTimeout(() => msg.remove(), 500);
+                    });
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>

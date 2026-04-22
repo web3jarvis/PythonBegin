@@ -5,9 +5,6 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 from flask_login import UserMixin
 
-
-
-
 # --------------------------- User Model -------------------------
 class User(UserMixin, Base):
     __tablename__   = "users"
@@ -76,7 +73,7 @@ class Wallet(Base):
     user_wallet     = Column(Integer, ForeignKey("users.id"))
     
 
-class AMM_Table(Base):
+class AMM(Base):
     __tablename__ = "amms"
     
     id                  = Column(Integer, primary_key=True, index=True)

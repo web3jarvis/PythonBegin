@@ -102,7 +102,7 @@ def dashboard(username):
     user = db_session.query(User).filter_by(username=username).first()
     if not user:
         db_session.close()
-        return "User not found", 404
+        return "User not found.", 404
     
     wallets = db_session.query(Wallet).filter_by(user_wallet=user.id).first()
     created_tokens = db_session.query(Token).filter_by(owner_id=user.id).all()

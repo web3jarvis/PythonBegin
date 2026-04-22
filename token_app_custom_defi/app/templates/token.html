@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Token</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="inner-page">
+    <nav class="navbar">
+        <a href="/dashboard/{{ username }}">🪙 Home</a>
+        <span class="sep">|</span>
+        <a href="/create_token/{{ username }}">Create Token</a>
+        <span class="sep">|</span>
+        <a href="/transfer/{{ username }}">Transfer Token</a>
+        <span class="sep">|</span>
+        <a href="/create_pool/{{ username }}">Create Pool</a>
+        <span class="sep">|</span>
+        <a href="/swap/{{ username }}">Swap</a>
+        <span class="sep">|</span>
+        <a href="/logout">Logout</a>
+        <span class="sep">|</span>
+        <span class="current-user">👤 {{ username }}</span>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="flash-{{ category }}">
+                {{ "⚠️" if category == "error" else "✅" }} {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+
+    <div class="page-title">✨ Create Token</div>
+    <div class="section">   
+        <form method="POST" action="{{ url_for('create_token', username=user.username) }}">
+            <div class="form-group">
+                <label>Token Name</label>
+                <input type="text" name="token_name" placeholder="Enter token name" required>
+            </div>
+            <div class="form-group">
+                <label>Token Symbol</label>
+                <input type="text" name="token_symbol" placeholder="Enter token symbol" required>
+            </div>
+            <div class="form-group">
+                <label>Initial Supply</label>
+                <input type="number" name="initial_supply" placeholder="Enter initial supply" min="1" required>
+            </div>
+            <button type="submit">Deploy Token</button>
+        </form>
+    </div>
+    {% if success %}
+        <div class="success-box">
+            <h2>✅ Token Created Successfully! ✅</h2>
+            <p><strong>Token Name:</strong> {{ token_name }}</p>
+            <p><strong>Token Symbol:</strong> {{ token_symbol }}</p>
+            <p><strong>Initial Supply:</strong> {{ initial_supply }}</p>
+        </div>
+    {% endif %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const flashMessages = document.querySelectorAll('[class^="flash-"]');
+            if (flashMessages.length > 0) {
+                setTimeout(() => {
+                    flashMessages.forEach(msg => {
+                        msg.style.transition = "opacity 0.5s ease";
+                        msg.style.opacity = "0";
+                        setTimeout(() => msg.remove(), 500);
+                    });
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create AMM Pool — TokenApp</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="inner-page">
+
+    <nav class="navbar">
+        <a href="/dashboard/{{ username }}">🪙 Home</a>
+        <span class="sep">|</span>
+        <a href="/create_token/{{ username }}">Create Token</a>
+        <span class="sep">|</span>
+        <a href="/transfer/{{ username }}">Transfer Token</a>
+        <span class="sep">|</span>
+        <a href="/create_pool/{{ username }}">Create Pool</a>
+        <span class="sep">|</span>
+        <a href="/swap/{{ username }}">Swap</a>
+        <span class="sep">|</span>
+        <a href="/logout">Logout</a>
+        <span class="sep">|</span>
+        <span class="current-user">👤 {{ username }}</span>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="flash-{{ category }}">
+                {{ "⚠️" if category == "error" else "✅" }} {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <div class="page-title">⚖️ Create a New Liquidity Pool</div>
+    
+    <div class="section">
+        <p style="margin-bottom: 20px;">Pair two different tokens from your wallet to create a new trading market.</p>
+        
+        <form method="POST" action="{{ url_for('create_pool', username=username) }}" class="form">
+            
+            <div style="display: flex; gap: 16px; margin-bottom: 20px;">
+                <div class="form-group" style="flex: 2; margin-bottom: 0;">
+                    <label>Select Token A</label>
+                    <select name="token_A_name" required>
+                        <option value="" disabled selected>-- Choose First Token --</option>
+                        {% for token in user_tokens %}
+                            <option value="{{ token.token_name }}">{{ token.token_name }} ({{ token.token_symbol }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <label>Initial Amount A</label>
+                    <input type="number" name="reserve_A" placeholder="0" min="1" step="any" required>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 16px; margin-bottom: 20px;">
+                <div class="form-group" style="flex: 2; margin-bottom: 0;">
+                    <label>Select Token B</label>
+                    <select name="token_B_name" required>
+                        <option value="" disabled selected>-- Choose Second Token --</option>
+                        {% for token in user_tokens %}
+                            <option value="{{ token.token_name }}">{{ token.token_name }} ({{ token.token_symbol }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <label>Initial Amount B</label>
+                    <input type="number" name="reserve_B" placeholder="0" min="1" step="any" required>
+                </div>
+            </div>
+
+            <button type="submit" {% if user_tokens|length < 2 %}disabled style="opacity:0.5; cursor:not-allowed;"{% endif %}>
+                Deploy Pool
+            </button>
+
+            {% if user_tokens|length < 2 %}
+                <p style="color:#f87171; font-size:13px; margin-top:12px; text-align:center;">
+                    ⚠️ You need at least 2 different tokens in your wallet to create a pool.
+                </p>
+            {% endif %}
+
+        </form>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const flashMessages = document.querySelectorAll('[class^="flash-"]');
+            if (flashMessages.length > 0) {
+                setTimeout(() => {
+                    flashMessages.forEach(msg => {
+                        msg.style.transition = "opacity 0.5s ease";
+                        msg.style.opacity = "0";
+                        setTimeout(() => msg.remove(), 500);
+                    });
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>

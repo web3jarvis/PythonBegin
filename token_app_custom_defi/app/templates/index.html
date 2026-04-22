@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="auth-page">
+    <div class="card">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="flash-{{ category }}">
+                    {{ "⚠️" if category == "error" else "✅" }} {{ message }}
+                </div>
+            {% endfor %}
+        {% endwith %}
+        <div class="logo">
+            <h1>🪙 Welcome to the Token App</h1>
+            <p>Create, manage and transfer tokens on the blockchain</p>
+        </div>
+        <div class="index-buttons">
+            <a href="{{ url_for('login') }}" class="btn-index btn-login">Login</a>
+            <a href="{{ url_for('register') }}" class="btn-index btn-register">Register</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const flashMessages = document.querySelectorAll('[class^="flash-"]');
+            if (flashMessages.length > 0) {
+                setTimeout(() => {
+                    flashMessages.forEach(msg => {
+                        msg.style.transition = "opacity 0.5s ease";
+                        msg.style.opacity = "0";
+                        setTimeout(() => msg.remove(), 500);
+                    });
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>
