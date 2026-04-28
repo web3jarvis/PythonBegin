@@ -18,8 +18,15 @@
         <span class="sep">|</span>
         <a href="/swap/{{ username }}">Swap</a>
         <span class="sep">|</span>
+        {% if active_staking_tokens %}
+            <a href="/staking/{{ username }}">Stake</a>
+            <span class="sep">|</span>
+        {% endif %}
         <a href="/logout">Logout</a>
-        <span class="sep">|</span>
+        <span class="sep">-</span>
+        {% if user.is_admin %}
+            <button class="copy-btn" onclick="window.location.href='/manage_staking/{{ username }}'">Manage Stake</button>
+        {% endif %}
         <span class="current-user">👤 {{ username }}</span>
     </nav>
 
@@ -32,7 +39,7 @@
     {% endwith %}
 
 
-    <div class="page-title">✨ Create Token</div>
+    <div class="page-title">Create Token</div>
     <div class="section">   
         <form method="POST" action="{{ url_for('create_token', username=user.username) }}">
             <div class="form-group">

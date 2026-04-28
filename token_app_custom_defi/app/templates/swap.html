@@ -11,6 +11,10 @@
     <nav class="navbar">
         <a href="/dashboard/{{ username }}">🪙 Home</a>
         <span class="sep">|</span>
+        {% if not wallet %}
+            <a href="/create_wallet/{{ username }}">Create Wallet</a>
+            <span class="sep">|</span>
+        {% endif %}
         <a href="/create_token/{{ username }}">Create Token</a>
         <span class="sep">|</span>
         <a href="/transfer/{{ username }}">Transfer Token</a>
@@ -19,8 +23,15 @@
         <span class="sep">|</span>
         <a href="/swap/{{ username }}">Swap</a>
         <span class="sep">|</span>
+        {% if active_staking_tokens %}
+            <a href="/staking/{{ username }}">Stake</a>
+            <span class="sep">|</span>
+        {% endif %}
         <a href="/logout">Logout</a>
-        <span class="sep">|</span>
+        <span class="sep">-</span>
+        {% if user.is_admin %}
+            <button class="copy-btn" onclick="window.location.href='/manage_staking/{{ username }}'">Manage Stake</button>
+        {% endif %}
         <span class="current-user">👤 {{ username }}</span>
     </nav>
 
@@ -32,12 +43,12 @@
         {% endfor %}
     {% endwith %}
 
-    <div class="page-title">🔄 Swap Tokens</div>
+    <div class="page-title">Swap Tokens</div>
     
     <div class="section">
-        <p style="margin-bottom: 20px;">Instantly trade tokens from the live pools.</p>
+        <p class="mb-20 text-muted">Instantly trade tokens from the live pools.</p>
         
-        <form method="POST" action="{{ url_for('swap', username=username) }}" class="form">
+        <form method="POST" action="{{ url_for('swap', username=username) }}">
             
             <div class="form-group">
                 <label>1. Token you want to PAY</label>
@@ -54,7 +65,7 @@
                 <input type="number" name="from_amount" placeholder="Enter amount (e.g. 10)" min="0.0001" step="any" required>
             </div>
 
-            <div style="text-align: center; margin: 15px 0; font-size: 20px;">
+            <div class="swap-arrow">
                 ⬇️
             </div>
 
@@ -66,12 +77,12 @@
                         <option value="{{ token.contract_address }}">{{ token.token_symbol }}</option>
                     {% endfor %}
                 </select>
-                <p style="font-size: 12px; color: #9ca3af; margin-top: 6px;">
+                <p class="text-xs text-muted mt-12">
                     ℹ️ The smart contract will automatically calculate the amount you receive based on current pool reserves.
                 </p>
             </div>
 
-            <button type="submit" {% if active_tokens|length < 2 %}disabled style="opacity:0.5; cursor:not-allowed;"{% endif %}>
+            <button type="submit" {% if active_tokens|length < 2 %}disabled{% endif %}>
                 Swap
             </button>
 

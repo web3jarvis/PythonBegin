@@ -1,6 +1,6 @@
 # --------------------------- Imports -------------------------
 from db import Base
-from sqlalchemy import Column, Integer, String, DateTime, Float, ForeignKey
+from sqlalchemy import Boolean, Column, Integer, String, DateTime, Float, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from flask_login import UserMixin
@@ -12,6 +12,7 @@ class User(UserMixin, Base):
     id              = Column(Integer, primary_key=True, index=True)
     username        = Column(String, unique=True, index=True)
     password        = Column(String, nullable=False)
+    is_admin        = Column(Boolean, default=False)
     timestamp       = Column(DateTime, default=datetime.now)
     
     wallet          = relationship("Wallet", backref="owner", lazy=True)
@@ -58,6 +59,8 @@ class Token(Base):
     initial_supply  = Column(Float, nullable=False)
     contract_address = Column(String, unique=True, index=True, nullable=False)
     token_ownerid   = Column(Integer, ForeignKey("user_table.id"))
+    is_stake_active = Column(Boolean, default=False)
+    staking_address = Column(String, unique=True, index=True, nullable=True)
     timestamp       = Column(DateTime, default=datetime.now)
     
     owner           = relationship("User", back_populates="tokens")

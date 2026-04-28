@@ -29,8 +29,8 @@ contract Token{
     }
 
     function transferFrom(address from, address to, uint256 amount) public returns (bool){
-        require(balanceOf[from] >= amount, "Insufficient balance");
-        require(allowance[from][msg.sender] >= amount, "Insufficient allowance");
+        require(balanceOf[from] >= amount, "Insufficient Balance");
+        require(allowance[from][msg.sender] >= amount, "Insufficient Allowance");
         allowance[from][msg.sender] -= amount;
         balanceOf[from] -= amount;
         balanceOf[to] += amount;

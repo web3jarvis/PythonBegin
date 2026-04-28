@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Staking Pool — Admin Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="inner-page">
+
+    <nav class="navbar">
+        <a href="/dashboard/{{ user.username }}">🪙 Back to Dashboard</a>
+        <span class="sep">|</span>
+        <span class="current-user text-warning font-bold">👑 Admin Portal</span>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="flash-{{ category }}">
+                {{ "✅" if category == "success" else "⚠️" }} {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <div class="section admin-section mt-24">
+        <h3>Create New Staking Pool</h3>
+        <p class="text-muted text-sm mb-20">
+            Select a token from the platform to activate its staking pool. Once created, normal users will be able to stake this token.
+        </p>
+
+        <form method="POST" action="/manage_staking/{{ user.username }}" class="admin-form">
+            <div>
+                <label>Select Token</label>
+                <select name="token_id" required>
+                    <option value="" disabled selected>-- Choose a Token --</option>
+                    {% for token in inactive_staking_tokens %}
+                        <option value="{{ token.id }}">{{ token.token_name }} ({{ token.token_symbol }})</option>
+                    {% endfor %}
+                </select>
+                {% if not inactive_staking_tokens %}
+                    <p class="text-danger text-xs mt-12">No eligible tokens found. Create a token first.</p>
+                {% endif %}
+            </div>
+
+            <button type="submit" {% if not inactive_staking_tokens %}disabled{% endif %}>
+                Create Staking Pool
+            </button>
+        </form>
+    </div>
+
+    <div class="section admin-section">
+        <h3>🟢 Currently Active Pools</h3>
+        {% if active_staking_tokens %}
+            <ul>
+                {% for token in active_staking_tokens %}
+                    <li class="admin-list-item">
+                        <strong>{{ token.token_name }} <span class="text-muted">({{ token.token_symbol }})</span></strong>
+                        <span class="text-success text-xs font-bold">LIVE</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted text-sm">No staking pools are currently active.</p>
+        {% endif %}
+    </div>
+
+</body>
+</html>

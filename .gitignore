@@ -4,3 +4,4 @@ my_project_env/
 db.sqlite3
 *.db
 *.pyc
+GovTracker/*

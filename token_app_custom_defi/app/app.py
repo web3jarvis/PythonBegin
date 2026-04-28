@@ -4,7 +4,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from werkzeug.security import generate_password_hash, check_password_hash
 from db import SessionLocal, Base, engine
 from models import User, Wallet, Token, Transaction, AMM
-from blockchain.ape_util import add_liquidity, deploy_token, get_contract, transfer_tokens, deploy_pool, swap_tokens
+from blockchain.ape_util import add_liquidity, deploy_staking, deploy_token, execute_stake, execute_unstake, get_contract, get_staking_contract, transfer_tokens, deploy_pool, swap_tokens
 from datetime import datetime
 
 # ---------------------------- Helper Functions -------------------------
@@ -54,7 +54,16 @@ def register():
             db_session.close()
             return redirect(url_for('register'))
         
-        new_user = User(username=username, password=generate_password_hash(password))
+        usercount = db_session.query(User).count()
+        if usercount == 0:
+            is_first_user = True
+        else:
+            is_first_user = False
+        
+        new_user = User(username=username, 
+                        password=generate_password_hash(password), 
+                        is_admin=is_first_user)
+        
         db_session.add(new_user)
         db_session.commit()
         db_session.close()
@@ -133,6 +142,7 @@ def dashboard(username):
     transaction_history = all_transactions + created_pools
     transaction_history.sort(key=sort_by_timestamp, reverse=True)
     
+    active_staking_tokens = db_session.query(Token).filter_by(is_stake_active=True).all()   
     render_data = render_template('dashboard.html', 
                                    user=user, 
                                    username=username, 
@@ -140,7 +150,8 @@ def dashboard(username):
                                    token_balances=token_balances, 
                                    created_tokens=created_tokens,
                                    created_pools=created_pools, 
-                                   transactions=transaction_history)
+                                   transactions=transaction_history,
+                                   active_staking_tokens=active_staking_tokens)
     db_session.close()
     return render_data
 
@@ -182,6 +193,8 @@ def create_token(username):
         flash("Please create a wallet first!", "error")
         db_session.close()
         return redirect(url_for('dashboard', username=username))
+    
+    active_staking_tokens = db_session.query(Token).filter_by(is_stake_active=True).all()
     
     if request.method == 'POST':
         token_name = request.form['token_name']
@@ -240,7 +253,10 @@ def create_token(username):
             return redirect(url_for('create_token', username=username))
         
     db_session.close()
-    return render_template('token.html', username=username, user=current_user)
+    return render_template('token.html', 
+                           username=username, 
+                           user=current_user,
+                           active_staking_tokens=active_staking_tokens)
 
 # --------------------------- Transfer Token ---------------------------
 @app.route('/transfer/<username>', methods=['GET', 'POST'])
@@ -269,6 +285,7 @@ def transfer(username):
                 pass
     
     transferable_tokens = [t for t in all_tokens if t.token_name in tokens_with_balance]
+    active_staking_tokens = db_session.query(Token).filter_by(is_stake_active=True).all()
     
     if request.method == 'POST':
         receiver_username = request.form['receiver_username']
@@ -330,7 +347,8 @@ def transfer(username):
                            user=current_user, 
                            transferable_tokens=transferable_tokens, 
                            tokens_with_balance=tokens_with_balance, 
-                           username=username)
+                           username=username,
+                           active_staking_tokens=active_staking_tokens)
 
 # --------------------------- Create Pool ---------------------------
 @app.route('/create_pool/<username>', methods=['GET', 'POST'])
@@ -353,6 +371,7 @@ def create_pool(username):
     received_tokens = db_session.query(Token).filter(Token.id.in_(received_token_ids)).all()
     
     all_tokens = {t.id: t for t in (created_tokens + received_tokens)}.values() # Deduplicate
+    active_staking_tokens = db_session.query(Token).filter_by(is_stake_active=True).all()
     
     if request.method == 'POST':
         token_A_name = request.form['token_A_name']
@@ -419,7 +438,8 @@ def create_pool(username):
                            username=username, 
                            user=current_user, 
                            wallet=wallet,
-                           user_tokens=list(all_tokens))
+                           user_tokens=list(all_tokens),
+                           active_staking_tokens=active_staking_tokens)
 
 # --------------------------- Swap Token ---------------------------
 @app.route('/swap/<username>', methods=['GET', 'POST'])
@@ -443,6 +463,8 @@ def swap(username):
         active_tokens[pool.token_A.token_name] = pool.token_A
         active_tokens[pool.token_B.token_name] = pool.token_B
     active_tokens = list(active_tokens.values())
+    
+    active_staking_tokens = db_session.query(Token).filter_by(is_stake_active=True).all()
     
     if request.method == 'POST':
         from_token_name = request.form['from_token']
@@ -526,8 +548,148 @@ def swap(username):
                            user=current_user, 
                            active_tokens=active_tokens, 
                            wallet=wallet, 
-                           pools=pools)
+                           pools=pools,
+                           active_staking_tokens=active_staking_tokens)
 
+# --------------------------- Manage Staking Route - Only for admin ---------------------------
+@app.route('/manage_staking/<username>', methods=['GET', 'POST'])
+@login_required
+def manage_staking(username):
+    if current_user.username != username or not current_user.is_admin:
+        return "Unauthorized", 403
+    
+    db_session = SessionLocal()
+    if request.method == 'POST':
+        token_id = int(request.form['token_id'])
+        token = db_session.query(Token).filter_by(id=token_id).first()
+        if token:
+            try:
+                staking_address = deploy_staking(token_address=token.contract_address)
+                transfer_txn_hash = transfer_tokens(
+                    sender_id=current_user.id - 1,
+                    receiver_address=staking_address,
+                    amount=int(token.initial_supply * 0.05),  # Initial stake amount for the staking contract
+                    contract_address=token.contract_address
+                )
+                new_tx = Transaction(
+                    sender_id=current_user.id,
+                    receiver_id=current_user.id,
+                    amount=int(token.initial_supply * 0.05),
+                    tx_type='pool_fund',
+                    tx_hash=str(transfer_txn_hash),
+                    token_id=token.id,
+                    timestamp=datetime.now()
+                )
+                db_session.add(new_tx)
+                token.is_stake_active = True
+                token.staking_address = staking_address
+                db_session.commit()
+                flash(f"Staking activated and funded for {token.token_name}.", "success")
+            except Exception as e:
+                db_session.rollback()
+                flash(f"Failed to activate staking: {str(e)}", "error")
+
+        db_session.close()
+        return redirect(url_for('manage_staking', username=username))
+    
+    inactive_staking_tokens = db_session.query(Token).filter_by(is_stake_active=False).all()
+    active_staking_tokens = db_session.query(Token).filter_by(is_stake_active=True).all()
+    
+    db_session.close()
+    return render_template('staking_admin.html', 
+                            username=username, 
+                            user=current_user,
+                            inactive_staking_tokens=inactive_staking_tokens, 
+                            active_staking_tokens=active_staking_tokens)
+    
+# --------------------------- Staking Route ---------------------------
+@app.route('/staking/<username>', methods=['GET', 'POST'])
+@login_required
+def staking(username):
+    if current_user.username != username:
+        return "Unauthorized", 403
+    
+    db_session = SessionLocal()
+    user_wallet = db_session.query(Wallet).filter_by(wallet_ownerid=current_user.id).first()
+    if not user_wallet:
+        flash("Please create a wallet first!", "error")
+        db_session.close()
+        return redirect(url_for('dashboard', username=username))
+    
+    if request.method == 'POST':
+        action = request.form.get('action')
+        amount = float(request.form.get('amount'))
+        final_amount = int(amount * (10**18))
+        token_id = int(request.form.get('token_id'))
+        token = db_session.query(Token).filter_by(id=token_id).first()
+
+        try:
+            if action == 'stake':
+                stake_txn_hash = execute_stake(
+                                        sender_id=current_user.id - 1, 
+                                        token_address=token.contract_address, 
+                                        staking_address=token.staking_address, 
+                                        amount=final_amount)
+                flash("Stake executed successfully!", "success")
+                new_tx = Transaction(
+                                sender_id=current_user.id, 
+                                receiver_id=current_user.id, 
+                                amount=amount, 
+                                tx_type='stake', 
+                                tx_hash=str(stake_txn_hash), 
+                                token_id=token.id, 
+                                received_amount=amount, 
+                                received_token_id=token.id,
+                                timestamp=datetime.now())
+                db_session.add(new_tx)
+                
+            elif action == 'unstake':
+                staking_balance = int(get_staking_contract(token.staking_address).stakingBalance(user_wallet.wallet_address))
+                if final_amount <= 0 or final_amount > staking_balance:
+                    flash(f"You have only {staking_balance / (10**18)} {token.token_symbol} staked. You cannot unstake more than that.", "error")
+                    db_session.close()
+                    return redirect(url_for('staking', username=username))
+                unstake_txn_hash = execute_unstake(
+                                        sender_id=current_user.id - 1, 
+                                        token_address=token.contract_address, 
+                                        staking_address=token.staking_address, 
+                                        amount=final_amount)
+                flash("Unstake executed successfully!", "success")
+                new_tx = Transaction(
+                                sender_id=current_user.id, 
+                                receiver_id=current_user.id, 
+                                amount=amount, 
+                                tx_type='unstake', 
+                                tx_hash=str(unstake_txn_hash), 
+                                token_id=token.id, 
+                                received_amount=amount * 1.1, 
+                                received_token_id=token.id,
+                                timestamp=datetime.now())
+                db_session.add(new_tx)
+                
+            db_session.commit()
+        except Exception as e:
+            flash("Staking action failed: " + str(e), "error")
+            db_session.rollback()
+    
+    active_staking_tokens = db_session.query(Token).filter_by(is_stake_active=True).all()
+    if not active_staking_tokens:
+        flash("No active staking tokens found.", "error")
+        db_session.close()
+        return redirect(url_for('dashboard', username=username))
+    
+    staking_balances = {}
+    for token in active_staking_tokens:
+        balance = int(get_staking_contract(token.staking_address).stakingBalance(user_wallet.wallet_address))
+        staking_balances[token.id] = balance / (10**18)
+    
+    db_session.close()
+    return render_template('staking_user.html', 
+                           username=username, 
+                           user=current_user, 
+                           active_staking_tokens=active_staking_tokens,
+                           staking_balances=staking_balances)
+    
 # --------------------------- Main Function -------------------------
 if __name__ == "__main__":
     with networks.ethereum.local.use_provider("foundry"):
