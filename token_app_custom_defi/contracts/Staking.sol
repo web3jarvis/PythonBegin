@@ -1,29 +1,31 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-import "./Token.sol";
 
-contract Staking {
+import "./openzeppelin/token/ERC20/IERC20.sol";
+import "./openzeppelin/utils/ReentrancyGuard.sol";
+
+contract Staking is ReentrancyGuard {
     
-    Token public stakingToken;
+    IERC20 public stakingToken;
     mapping(address => uint256) public stakingBalance;
     mapping(address => uint256) public stakingTime;
 
     constructor(address _stakingToken) {
-        stakingToken = Token(_stakingToken); // Initialize the staking token contract
+        stakingToken = IERC20(_stakingToken);
     }
 
-    function stake(uint256 _amount) public returns (bool) {
-        stakingToken.transferFrom(msg.sender, address(this), _amount); // Transfer tokens from user to staking contract
-        stakingBalance[msg.sender] += _amount; // Update the user's staking balance
-        stakingTime[msg.sender] = block.timestamp; // Record the time of staking for reward calculation
+    function stake(uint256 _amount) public nonReentrant returns (bool) {
+        require(stakingToken.transferFrom(msg.sender, address(this), _amount), "Transfer failed");
+        stakingBalance[msg.sender] += _amount;
+        stakingTime[msg.sender] = block.timestamp;
         return true;
     }
 
-    function unstake(uint256 _amount) public returns (bool) {
+    function unstake(uint256 _amount) public nonReentrant returns (bool) {
         uint256 rewardAmount = reward(_amount);
         require(stakingBalance[msg.sender] >= _amount, "Insufficient staked balance");
         stakingBalance[msg.sender] -= _amount;
-        stakingToken.transfer(msg.sender, _amount + rewardAmount);
+        require(stakingToken.transfer(msg.sender, _amount + rewardAmount), "Transfer failed");
         return true;
     }
 
