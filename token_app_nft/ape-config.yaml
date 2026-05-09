@@ -4,6 +4,9 @@ plugins:
   - name: solidity
   - name: foundry
 
+solidity:
+  version: 0.8.25
+
 ethereum:
   default_network: local
 

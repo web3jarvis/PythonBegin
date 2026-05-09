@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ username }}'s NFT Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="inner-page">
+
+    <nav class="navbar">
+        <a href="/dashboard/{{ username }}">Home</a>
+        <span class="sep">|</span>
+        {% if not wallet %}
+            <a href="/create_wallet/{{ username }}">Create Wallet</a>
+            <span class="sep">|</span>
+        {% endif %}
+        <a href="/mint_nft/{{ username }}" style="color: #4f46e5; font-weight: bold;">Mint NFT</a>
+        <span class="sep">|</span>
+        {% if current_user.is_authenticated and current_user.is_admin %}
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('upload_nft', username=current_user.username) }}">Upload NFT</a>
+            </li>
+        {% endif %}
+        <span class="sep">|</span>
+        <a href="/logout">Logout</a>
+        <span class="sep">-</span>
+        <span class="current-user">👤 {{ username }}</span>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="flash-{{ category }}">
+                {{ "⚠️" if category == "error" else "✅" }} {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <div class="page-title">NFT Portal — Welcome, {{ username }}!</div>
+
+    <div class="dashboard-stats">
+        <div class="section stat-box">
+            <h3>Total Transactions</h3>
+            <p class="stat-num text-purple">{{ transactions|length }}</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Your Connected Wallet</h3>
+        {% if wallet %}
+            <span class="badge-green">✔ Wallet Active</span>
+            <div class="wallet-row">
+                <div class="wallet-address">{{ wallet.wallet_address }}</div>
+                <button class="copy-btn"
+                    onclick="navigator.clipboard.writeText('{{ wallet.wallet_address }}'); this.innerText='✅ Copied!'; setTimeout(()=>this.innerText='📋 Copy', 1500)">
+                    📋 Copy
+                </button>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <span>👛</span>
+                <p>No wallet created yet. <a href="/create_wallet/{{ username }}" class="text-indigo">Create one</a> before minting.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <h3>NFT Transaction History</h3>
+        {% if transactions %}
+            <ul>
+                {% for tx in transactions %}
+                    {% if tx.tx_type == "mint_nft" %}
+                        <li class="tx-item tx-item-mint">
+                            <span class="ml-12">
+                                <span class="tx-mint" style="color: #4f46e5; border-color: #4f46e5; font-weight: bold;">NFT Minted</span>
+                                    — <strong>1 Asset</strong> Created
+                            </span>
+                            <span class="tx-hash" title="{{ tx.tx_hash }}">Tx Hash: {{ tx.tx_hash }} </span>
+                            <span class="tx-timestamp">{{ tx.timestamp.strftime('%d-%b-%Y | %I:%M %p') }}</span>
+                        </li>
+                    {% else %}
+                        <li class="tx-item">
+                            <span class="ml-12">Legacy Transaction</span>
+                            <span class="tx-hash" title="{{ tx.tx_hash }}">Tx Hash: {{ tx.tx_hash }} </span>
+                            <span class="tx-timestamp">{{ tx.timestamp.strftime('%d-%b-%Y | %I:%M %p') }}</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="empty-state">
+                <span>📭</span>
+                <p>No NFTs minted yet. Time to create your first asset!</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const flashMessages = document.querySelectorAll('[class^="flash-"]');
+            if (flashMessages.length > 0) {
+                setTimeout(() => {
+                    flashMessages.forEach(msg => {
+                        msg.style.transition = "opacity 0.5s ease";
+                        msg.style.opacity = "0";
+                        setTimeout(() => msg.remove(), 500);
+                    });
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>
