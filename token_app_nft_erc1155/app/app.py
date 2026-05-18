@@ -364,39 +364,49 @@ def transfer_nft(username, id):
         return "Unauthorized", 403
     
     db_session = SessionLocal()
-    nft = db_session.query(NFTCollection).filter_by(id=id).first()
+    success = False
     
-    if request.method == 'POST':
-        username = current_user.username
-        nft_id = id
+    try:
+        nft = db_session.query(NFTCollection).filter_by(id=id).first()
+        if not nft:
+            flash("NFT not found.", "error")
+            return redirect(url_for('nft_gallery', username=username))
         
-        success = False
-        try:
-            transfer_nft_txn_hash = transfer_nft_owner(current_user.id - 1, current_user.id, nft_id, 1)
+        user_wallet = db_session.query(Wallet).filter_by(wallet_ownerid=current_user.id).first()
+        if not user_wallet:
+            flash("Please create a wallet first!", "error")
+            return redirect(url_for('nft_gallery', username=username))
+        
+        if nft.owner_id == current_user.id:
+            flash("You already own this NFT!", "error")
+            return redirect(url_for('nft_gallery', username=username))
+        
+        transfer_nft_txn_hash = transfer_nft_owner(nft.owner_id - 1, user_wallet.wallet_address, nft.id, 1)
             
-            transfer_nft_tx = Transaction(
+        transfer_nft_tx = Transaction(
                                     sender_id=nft.owner_id, 
                                     receiver_id=current_user.id, 
                                     amount=1, 
                                     tx_type='transfer_nft', 
-                                    nft_id=nft_id, 
+                                    nft_id=nft.id, 
                                     tx_hash=str(transfer_nft_txn_hash), 
                                     timestamp=datetime.now())
-            db_session.add(transfer_nft_tx)
-            db_session.commit()
-            success = True
-        except Exception as e:
-            print(f"Exception, if any: {e}")
-            db_session.rollback()
-        finally:
-            db_session.close()
+        db_session.add(transfer_nft_tx)
+        nft.owner_id = current_user.id
+        db_session.commit()
+        success = True
+    except Exception as e:
+        print(f"Exception, if any: {e}")
+        db_session.rollback()
+    finally:
+        db_session.close()
         
-        if success == True:
-            flash(f"Successfully transferred NFT with ID {nft_id}!", "success")
-        else:
-            flash("Failed to transfer NFT.", "error")
+    if success == True:
+        flash(f"Successfully got NFT with ID {id}!", "success")
+    else:
+        flash("Failed to transfer NFT.", "error")
         
-        return redirect(url_for('dashboard', username=username))
+    return redirect(url_for('dashboard', username=username))
             
             
 # --------------------------- Main Function -------------------------
