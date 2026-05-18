@@ -11,10 +11,14 @@
     <nav class="navbar">
         <a href="/dashboard/{{ user.username }}">Home</a>
         <span class="sep">|</span>
-        <a href="/mint_nft/{{ user.username }}">Mint NFT</a>
+        <a href="/mint_nft/{{ user.username }}">Mint SBT</a>
         <span class="sep">|</span>
-        <a href="{{ url_for('upload_nft', username=user.username) }}">Upload NFT</a>
+        <a href="/nft_gallery/{{ user.username }}">Gallery</a>
         <span class="sep">|</span>
+        {% if user.is_admin %}
+            <a href="{{ url_for('upload_nft', username=user.username) }}">Upload NFT</a>
+            <span class="sep">|</span>
+        {% endif %}
         <a href="/logout">Logout</a>
         <span class="current-user">👤 {{ user.username }}</span>
     </nav>

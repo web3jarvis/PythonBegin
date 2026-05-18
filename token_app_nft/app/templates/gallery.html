@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFT Gallery — TokenApp</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="inner-page">
+
+    <nav class="navbar">
+        <a href="/dashboard/{{ username }}">Home</a>
+        <span class="sep">|</span>
+        <a href="/mint_nft/{{ username }}" class="text-indigo font-bold">Mint SBT</a>
+        <span class="sep">|</span>
+        <a href="/nft_gallery/{{ username }}" style="color: #6366f1; font-weight: bold;">Gallery</a>
+        <span class="sep">|</span>
+        {% if current_user.is_admin %}
+            <a href="{{ url_for('upload_nft', username=username) }}">Upload NFT</a>
+            <span class="sep">|</span>
+        {% endif %}
+        <a href="/logout">Logout</a>
+        <span class="current-user">👤 {{ username }}</span>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="flash-{{ category }}">
+                {{ "⚠️" if category == "error" else "✅" }} {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <div class="page-title">NFT Gallery</div>
+
+    {% if nfts %}
+        <div class="gallery-grid">
+            {% for nft in nfts %}
+                <div class="nft-item">
+                    <div class="nft-img-container">
+                        <img src="{{ url_for('static', filename='uploads/' + nft.image_cid) }}" alt="{{ nft.name }}">
+                    </div>
+                    <div class="nft-info">
+                        <h4>{{ nft.name }}</h4>
+                        <p>{{ nft.description }}</p>
+                        
+                        <div class="nft-stats-row">
+                            <span class="owner-tag">Creator ID: {{ nft.owner_id }}</span>
+                            <span class="mint-badge">🔥 {{ nft.mint_count }} Minted</span>
+                        </div>
+                        
+                        <form action="{{ url_for('nft_mint_dynamic', id=nft.id) }}" method="POST" class="mt-12">
+                            <button type="submit" class="mint-btn">
+                                MINT
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <span>🖼️</span>
+            <p>The gallery is empty. {% if current_user.is_admin %}Upload some art to see it here!{% endif %}</p>
+        </div>
+    {% endif %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const flashMessages = document.querySelectorAll('[class^="flash-"]');
+            if (flashMessages.length > 0) {
+                setTimeout(() => {
+                    flashMessages.forEach(msg => {
+                        msg.style.transition = "opacity 0.5s ease";
+                        msg.style.opacity = "0";
+                        setTimeout(() => msg.remove(), 500);
+                    });
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>

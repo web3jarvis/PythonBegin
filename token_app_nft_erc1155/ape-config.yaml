@@ -1,0 +1,26 @@
+name: token_app
+
+plugins:
+  - name: solidity
+  - name: foundry
+
+solidity:
+  version: 0.8.25
+
+ethereum:
+  default_network: local
+
+foundry:
+  host: http://127.0.0.1:8545
+
+dependencies:
+  - name: openzeppelin
+    github: OpenZeppelin/openzeppelin-contracts
+    version: 5.0.0  # Ensure this matches your version
+    config_override:
+      compile:
+        exclude:
+          - "**/lib/openzeppelin-contracts/fv/**"
+          - "**/lib/openzeppelin-contracts/test/**"
+          - "**/lib/openzeppelin-contracts/mocks/**"
+          - "**/*.json"

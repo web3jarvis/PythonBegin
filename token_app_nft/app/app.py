@@ -272,7 +272,87 @@ def upload_nft(username):
     return render_template('upload.html', 
                            username=username, 
                            user=current_user)
+
+# ---------------------------- View NFT Gallery ----------------------------
+@app.route('/nft_gallery/<username>', methods=['GET'])
+@login_required
+def nft_gallery(username):
+    if current_user.username != username:
+        return "Unauthorized", 403
+
+    db_session = SessionLocal()
+    user_wallet = db_session.query(Wallet).filter_by(wallet_ownerid=current_user.id).first()
+    if not user_wallet:
+        flash("Please create a wallet first!", "error")
+        db_session.close()
+        return redirect(url_for('dashboard', username=username))
     
+    try:
+        all_nfts = db_session.query(NFTCollection).all()
+        for nft in all_nfts:
+            mint_count = db_session.query(Transaction).filter_by(nft_id=nft.id, tx_type='dynamic_nft_mint').count()
+            nft.mint_count = mint_count
+    except Exception as e:
+        print(f"Exception occurred: {e}")
+        flash("Failed to retrieve NFT gallery.", "error")
+    finally:
+        db_session.close()
+    
+    return render_template('gallery.html', 
+                           username=username, 
+                           user=current_user,
+                           nfts=all_nfts)
+
+# ---------------------------- Dynamic NFT Minting Route ----------------------------
+@app.route('/nft_mint_dynamic/<int:id>', methods=['POST'])
+@login_required
+def nft_mint_dynamic(id):
+    
+    db_session = SessionLocal()
+    user_wallet = db_session.query(Wallet).filter_by(wallet_ownerid=current_user.id).first()
+    if not user_wallet:
+        flash("Please create a wallet first!", "error")
+        db_session.close()
+        return redirect(url_for('dashboard', username=current_user.username))
+    
+    nft_item = db_session.query(NFTCollection).filter_by(id=id).first()
+    if not nft_item:
+        flash("NFT not found.", "error")
+        db_session.close()
+        return redirect(url_for('nft_gallery', username=current_user.username))
+    
+    metadata_uri = nft_item.metadata_uri
+    
+    if request.method == 'POST':
+        dynamic_nft_name = nft_item.name
+        
+        success = False
+        try:
+            dynamic_nft_txn_hash = deploy_and_mint_nft(current_user.id - 1, metadata_uri, dynamic_nft_name)
+            
+            dynamic_nft_tx = Transaction(
+                                    sender_id=current_user.id, 
+                                    receiver_id=current_user.id, 
+                                    amount=1, 
+                                    tx_type='dynamic_nft_mint', 
+                                    nft_id=nft_item.id, 
+                                    tx_hash=str(dynamic_nft_txn_hash), 
+                                    timestamp=datetime.now())
+            db_session.add(dynamic_nft_tx)
+            db_session.commit()
+            success = True
+        except Exception as e:
+            print(f"Exception, if any: {e}")
+            db_session.rollback()
+        finally:
+            db_session.close()
+
+        if success:
+            flash(f"Successfully minted \"{dynamic_nft_name}\" NFT!", "success")
+        else:
+            flash("Failed to mint NFT.", "error")
+        
+        return redirect(url_for('nft_gallery', username=current_user.username))
 
 # --------------------------- Main Function -------------------------
 if __name__ == "__main__":

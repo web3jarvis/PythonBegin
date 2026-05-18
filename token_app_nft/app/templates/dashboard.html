@@ -15,14 +15,14 @@
             <a href="/create_wallet/{{ username }}">Create Wallet</a>
             <span class="sep">|</span>
         {% endif %}
-        <a href="/mint_nft/{{ username }}" style="color: #4f46e5; font-weight: bold;">Mint NFT</a>
+        <a href="/mint_nft/{{ username }}" class="text-indigo font-bold">Mint SBT</a>
         <span class="sep">|</span>
-        {% if current_user.is_authenticated and current_user.is_admin %}
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('upload_nft', username=current_user.username) }}">Upload NFT</a>
-            </li>
+        <a href="/nft_gallery/{{ username }}">Gallery</a>
+        <span class="sep">|</span>
+        {% if current_user.is_admin %}
+            <a href="{{ url_for('upload_nft', username=username) }}">Upload NFT</a>
+            <span class="sep">|</span>
         {% endif %}
-        <span class="sep">|</span>
         <a href="/logout">Logout</a>
         <span class="sep">-</span>
         <span class="current-user">👤 {{ username }}</span>
@@ -65,23 +65,28 @@
     </div>
 
     <div class="section">
-        <h3>NFT Transaction History</h3>
+        <h3>Transaction History</h3>
         {% if transactions %}
             <ul>
                 {% for tx in transactions %}
                     {% if tx.tx_type == "mint_nft" %}
                         <li class="tx-item tx-item-mint">
                             <span class="ml-12">
-                                <span class="tx-mint" style="color: #4f46e5; border-color: #4f46e5; font-weight: bold;">NFT Minted</span>
+                                <span class="tx-mint">NFT Minted</span>
                                     — <strong>1 Asset</strong> Created
                             </span>
                             <span class="tx-hash" title="{{ tx.tx_hash }}">Tx Hash: {{ tx.tx_hash }} </span>
                             <span class="tx-timestamp">{{ tx.timestamp.strftime('%d-%b-%Y | %I:%M %p') }}</span>
                         </li>
                     {% else %}
-                        <li class="tx-item">
-                            <span class="ml-12">Legacy Transaction</span>
-                            <span class="tx-hash" title="{{ tx.tx_hash }}">Tx Hash: {{ tx.tx_hash }} </span>
+                        <li class="tx-item tx-item-mint">
+                            <span class="ml-12">
+                                <span class="tx-mint">Minted from Gallery</span>
+                                {% if tx.nft_id %}
+                                    <small class="text-muted" style="margin-left: 4px; font-size: 11px;">(NFT ID: {{ tx.nft_id }})</small>
+                                {% endif %}
+                            </span>
+                            <span class="tx-hash" title="{{ tx.tx_hash }}">Tx Hash: {{ tx.tx_hash }}</span>
                             <span class="tx-timestamp">{{ tx.timestamp.strftime('%d-%b-%Y | %I:%M %p') }}</span>
                         </li>
                     {% endif %}

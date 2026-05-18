@@ -36,6 +36,7 @@ class Transaction(Base):
     receiver_id     = Column(Integer, ForeignKey("user_table.id"))
     amount          = Column(Float, nullable=False)
     tx_type         = Column(String, nullable=False, default='transfer')
+    nft_id          = Column(Integer, ForeignKey("nft_collection_table.id"), nullable=True)
     tx_hash         = Column(String, unique=True, index=True, nullable=False)
     timestamp       = Column(DateTime, default=datetime.now)
     

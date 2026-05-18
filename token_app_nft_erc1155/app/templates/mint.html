@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mint NFT — TokenApp</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .nft-card {
+            max-width: 420px;
+            margin: 40px auto;
+            background: #1a1a2e;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid #2a2a4a;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        .nft-card h3 {
+            color: #ffffff;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+        .nft-card img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            border: 1px solid #2a2a4a;
+        }
+        .mint-btn {
+            width: 100%;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s, transform 0.1s;
+        }
+        .mint-btn:hover { background: #3730a3; }
+        .mint-btn:active { transform: scale(0.98); }
+        .tx-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid #10b981;
+            border-radius: 4px;
+            word-break: break-all;
+            text-align: left;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body class="inner-page">
+
+    <nav class="navbar">
+        <a href="/dashboard/{{ username }}">Home</a>
+        <span class="sep">|</span>
+        <a href="/mint_nft/{{ username }}" style="color: #4f46e5; font-weight: bold;">Mint SBT</a>
+        <span class="sep">|</span>
+        <a href="/nft_gallery/{{ username }}">Gallery</a>
+        <span class="sep">|</span>
+        <a href="/logout">Logout</a>
+        <span class="sep">-</span>
+        <span class="current-user">👤 {{ username }}</span>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="flash-{{ category }}">
+                {{ "⚠️" if category == "error" else "✅" }} {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <div class="nft-card">
+        <h3>My Custom NFT Pass</h3>
+    
+        <img src="{{ image_url }}" alt="NFT Asset">
+        
+        <form action="/mint_nft/{{ username }}" method="POST">
+            <button type="submit" class="mint-btn">
+                MINT
+            </button>
+        </form>
+
+        {% if success %}
+            <div class="tx-box">
+                <strong style="color: #10b981;">Success!</strong> Asset minted to wallet.<br><br>
+                <small><b>Tx Hash:</b> <span style="color: #9ca3af; font-family: monospace;">{{ txn_hash }}</span></small>
+            </div>
+        {% endif %}
+    </div>
+
+</body>
+</html>
