@@ -4,12 +4,8 @@ _contract_address = None
 
 def get_contract(account):
     global _contract_address
-    
-    if _contract_address is None:
-        deployed_contract = account.deploy(project.MyCustomNFT, account.address)
-        _contract_address = deployed_contract.address
-        return deployed_contract
-    
+    if not _contract_address:
+        _contract_address = account.deploy(project.MyCustomNFT, account.address).address
     return project.MyCustomNFT.at(_contract_address)
 
 def deploy_and_mint_nft(account_index, token_id, token_uri):

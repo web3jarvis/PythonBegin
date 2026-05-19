@@ -1,0 +1,687 @@
+/* ── Base Reset & Premium Fonts ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    /* DEFAULT DARK THEME VARIABLES */
+    --body-bg: radial-gradient(circle at top right, #1c1c21, #0a0a0c);
+    --card-panel-bg: rgba(255, 255, 255, 0.02);
+    --panel-border: rgba(255, 255, 255, 0.06);
+    --text-main: #f9fafb;
+    --text-muted: #9ca3af;
+    --accent-yellow: #eab308;
+    --accent-yellow-hover: #facc15;
+    --input-bg: rgba(0, 0, 0, 0.3);
+    --input-border: rgba(255, 255, 255, 0.1);
+    --navbar-bg: rgba(26, 26, 30, 0.4);
+    --tx-item-bg: rgba(0, 0, 0, 0.2);
+    --shadow-color: rgba(0, 0, 0, 0.4);
+}
+
+body.light-mode {
+    /* PREMIUM LIGHT THEME VARIABLES */
+    --body-bg: linear-gradient(135deg, #f3f4f6, #f9fafb);
+    --card-panel-bg: #ffffff;
+    --panel-border: rgba(0, 0, 0, 0.08);
+    --text-main: #111827;
+    --text-muted: #4b5563;
+    --accent-yellow: #d97706; /* High contrast gold */
+    --accent-yellow-hover: #b45309;
+    --input-bg: #f9fafb;
+    --input-border: rgba(0, 0, 0, 0.15);
+    --navbar-bg: rgba(255, 255, 255, 0.8);
+    --tx-item-bg: #f3f4f6;
+    --shadow-color: rgba(0, 0, 0, 0.08);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--body-bg);
+    color: var(--text-main);
+    min-height: 100vh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ── Theme Toggle Switch Top Right ── */
+.theme-switch-container {
+    position: fixed;
+    top: 24px;
+    right: 32px;
+    z-index: 9999;
+    display: flex;
+    gap: 4px;
+    background: var(--navbar-bg);
+    border: 1px solid var(--panel-border);
+    padding: 6px;
+    border-radius: 30px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+body.auth-page .theme-switch-container {
+    top: 24px;
+    right: 24px;
+}
+
+.theme-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.theme-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.theme-btn.active {
+    background: var(--accent-yellow);
+    color: #000000 !important;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(234, 179, 8, 0.4);
+}
+
+/* ── Utility Classes ── */
+.text-center { text-align: center; }
+.font-bold { font-weight: 600; }
+.text-muted { color: var(--text-muted); }
+.text-main { color: var(--text-main); }
+.text-sm { font-size: 14px; }
+.text-xs { font-size: 12px; }
+.text-danger { color: #ef4444; }
+.text-success { color: #10b981; }
+.text-purple { color: #a855f7; }
+.mb-0 { margin-bottom: 0 !important; }
+.mb-20 { margin-bottom: 20px; }
+.mt-12 { margin-top: 12px; }
+.mt-24 { margin-top: 24px; }
+.ml-12 { margin-left: 12px; }
+.flex-1 { flex: 1; }
+
+/* ── Auth pages ── */
+body.auth-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card {
+    border-radius: 16px;
+    padding: 48px 40px;
+    width: 100%;
+    max-width: 440px;
+    background: var(--card-panel-bg);
+    border: 1px solid var(--panel-border);
+    box-shadow: 0 20px 40px var(--shadow-color);
+}
+
+.logo {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.logo h1 {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.logo p {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+/* ── Forms ── */
+.form-group {
+    margin-bottom: 24px;
+}
+
+label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="number"],
+input[type="file"],
+textarea {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    color: var(--text-main);
+    font-size: 15px;
+    outline: none;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+textarea:focus {
+    border-color: var(--accent-yellow);
+    box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.1);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--text-muted);
+    opacity: 0.6;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+input[type="file"] {
+    padding: 10px 16px;
+}
+
+input[type="file"]::file-selector-button {
+    background: var(--text-main);
+    color: var(--body-bg);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    margin-right: 16px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* ── Buttons ── */
+button[type="submit"], button.mint-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent-yellow);
+    color: #000000;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.3s ease;
+}
+
+button[type="submit"]:hover:not(:disabled), button.mint-btn:hover:not(:disabled) {
+    background: var(--accent-yellow-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(234, 179, 8, 0.2);
+}
+
+/* ── Link Buttons ── */
+a.mint-btn {
+    display: block;
+    text-decoration: none;
+    text-align: center;
+    padding: 14px;
+    background: var(--accent-yellow);
+    color: #000000;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+}
+
+a.mint-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(234, 179, 8, 0.3);
+}
+
+/* ── Disabled Buttons ── */
+.btn-disabled, button:disabled {
+    background: var(--input-bg) !important;
+    color: var(--text-muted) !important;
+    border: 1px solid var(--panel-border) !important;
+    cursor: not-allowed;
+    box-shadow: none !important;
+}
+
+/* ── Index Buttons ── */
+.index-buttons {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.btn-index {
+    flex: 1;
+    text-align: center;
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-login { 
+    background: var(--accent-yellow); 
+    color: #000000; 
+}
+.btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(234, 179, 8, 0.2);
+}
+
+.btn-register { 
+    background: var(--card-panel-bg); 
+    color: var(--text-main); 
+    border: 1px solid var(--panel-border); 
+}
+.btn-register:hover { 
+    background: var(--input-bg);
+    transform: translateY(-2px);
+}
+
+.footer-link {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.footer-link a {
+    color: var(--accent-yellow);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+/* ── Inner Pages & Navbar ── */
+body.inner-page {
+    padding: 32px 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.glass-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--navbar-bg) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--panel-border) !important;
+    box-shadow: 0 8px 32px var(--shadow-color);
+    border-radius: 12px;
+    padding: 14px 24px;
+    margin-bottom: 40px;
+    position: sticky;
+    top: 24px;
+    z-index: 100;
+}
+
+.glass-nav a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 14px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.glass-nav a:hover {
+    background: var(--card-panel-bg);
+    color: var(--text-main);
+}
+
+.glass-nav .sep { color: var(--panel-border); }
+
+.glass-nav .current-user {
+    margin-left: auto; 
+    color: var(--text-main);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.page-title {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 32px;
+}
+
+/* ── Sections & Dashboard Layout ── */
+.section {
+    background: var(--card-panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 20px var(--shadow-color);
+}
+
+.section h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 24px;
+}
+
+/* 💎 New Dashboard Grid Layout 💎 */
+.dashboard-top-row {
+    display: flex;
+    gap: 32px;
+    margin-bottom: 32px;
+}
+
+@media (max-width: 768px) {
+    .dashboard-top-row {
+        flex-direction: column;
+        gap: 0;
+    }
+}
+
+.stat-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.stat-num {
+    font-size: 44px;
+    font-weight: 700;
+    margin-top: 8px;
+    line-height: 1;
+}
+
+.wallet-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.wallet-address {
+    font-family: monospace;
+    font-size: 14px;
+    color: var(--accent-yellow);
+    background: var(--input-bg);
+    padding: 12px 20px;
+    border-radius: 8px;
+    border: 1px solid var(--panel-border);
+}
+
+.copy-btn {
+    padding: 12px 20px;
+    background: var(--input-bg);
+    color: var(--text-main);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.copy-btn:hover { background: var(--card-panel-bg); }
+
+.admin-section {
+    max-width: 540px;
+    margin: 0 auto;
+}
+
+/* ── 💎 GALLERY GRID & CLASSY NFT CARDS 💎 ── */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 32px;
+}
+
+/* Card Container */
+.nft-item {
+    background: var(--card-panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    box-shadow: 0 8px 24px var(--shadow-color);
+}
+
+.nft-item:hover {
+    transform: translateY(-8px);
+    border-color: var(--accent-yellow);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5); 
+}
+
+/* Top Section containing Image and Info */
+.nft-content-top {
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+}
+
+.nft-img-container {
+    width: 100%;
+    height: 260px; 
+    background: #000;
+    overflow: hidden;
+    border-bottom: 1px solid var(--panel-border);
+}
+
+.nft-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.nft-item:hover .nft-img-container img {
+    transform: scale(1.08); 
+}
+
+.nft-info {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    flex: 1; 
+}
+
+.nft-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.nft-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 0;
+    line-height: 1.3;
+}
+
+.mint-badge {
+    background: var(--input-bg);
+    color: var(--accent-yellow);
+    border: 1px solid var(--panel-border);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.nft-description {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 12px 0 0 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; 
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Structured Key-Value Metadata Box */
+.nft-meta-details {
+    margin-top: auto;
+    background: var(--input-bg);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--panel-border);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.meta-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+}
+
+.meta-label {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.meta-value {
+    color: var(--text-main);
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 12px;
+}
+
+/* Bottom Wrapper for Buttons */
+.nft-action-wrapper {
+    padding: 0 24px 24px 24px;
+}
+
+.mint-btn {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 0;
+}
+
+/* ── Transaction History Items ── */
+.section ul {
+    list-style: none;
+}
+
+.tx-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: var(--tx-item-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.tx-mint { color: var(--accent-yellow); font-weight: 600; }
+.tx-hash { color: var(--text-muted); font-size: 12px; font-family: monospace; }
+.tx-timestamp { color: var(--text-muted); font-size: 13px; text-align: right; }
+
+/* ── Flash Messages ── */
+.flash-error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid #ef4444;
+    color: #fca5a5;
+    padding: 14px 20px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    font-size: 14px;
+}
+
+.flash-success {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid #10b981;
+    color: #6ee7b7;
+    padding: 14px 20px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    font-size: 14px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 64px 0;
+    color: var(--text-muted);
+}
+.empty-icon {
+    font-size: 48px;
+    display: block;
+    margin-bottom: 16px;
+    opacity: 0.8;
+}
+
+/* ── Fixed File Input Button ── */
+input[type="file"]::file-selector-button {
+    background: var(--accent-yellow);
+    color: #000000;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    margin-right: 16px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+input[type="file"]::file-selector-button:hover {
+    background: var(--accent-yellow-hover);
+    transform: translateY(-1px);
+}
+
+/* ── Mint Page Specific Layout Classes (Zero Inline Styles) ── */
+.admin-panel-box {
+    padding: 32px;
+}
+
+.admin-panel-header {
+    border-bottom: 1px solid var(--panel-border);
+    padding-bottom: 16px;
+}
+
+.admin-title {
+    margin-bottom: 4px;
+    color: var(--text-main);
+    font-size: 20px;
+}
+
+.input-short {
+    max-width: 140px;
+}
+
+.mt-16 {
+    margin-top: 16px !important;
+}

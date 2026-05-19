@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}NFT Gallery — TokenApp{% endblock %}
+
+{% block content %}
+    <div class="page-title">NFT Gallery</div>
+
+    {% if nfts %}
+        <div class="gallery-grid">
+            {% for nft in nfts %}
+                <div class="nft-item">
+                    
+                    <div class="nft-content-top">
+                        <div class="nft-img-container">
+                            <img src="{{ url_for('static', filename='uploads/' + nft.image_cid) }}" alt="{{ nft.name }}">
+                        </div>
+                        
+                        <div class="nft-info">
+                            <div class="nft-header-row">
+                                <h4 class="nft-title">{{ nft.name }}</h4>
+                                <span class="mint-badge">🔥 {{ nft.owner_count }} / {{ nft.nft_supply }} Owned</span>
+                            </div>
+                            
+                            <p class="nft-description">{{ nft.description }}</p>
+                            
+                            <div class="nft-meta-details">
+                                <div class="meta-line">
+                                    <span class="meta-label">NFT ID:</span>
+                                    <span class="meta-value">#{{ nft.id }}</span>
+                                </div>
+                                <div class="meta-line">
+                                    <span class="meta-label">Creator:</span>
+                                    <span class="meta-value">{{ nft.owner_name }}</span>
+                                </div>
+                                <div class="meta-line">
+                                    <span class="meta-label">Current Owner:</span>
+                                    {% if nft.already_owned %}
+                                        <span class="meta-value text-success font-bold">You</span>
+                                    {% else %}
+                                        <span class="meta-value text-main">{{ nft.current_owner_name }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="nft-action-wrapper">
+                        <form action="{{ url_for('transfer_nft', username=username, id=nft.id) }}" method="POST">
+                            {% if nft.owner_id == current_user.id %}
+                                <button type="button" class="mint-btn btn-disabled" disabled>
+                                    You are the Supplier!
+                                </button>
+                            {% elif nft.already_owned %}
+                                <button type="button" class="mint-btn btn-disabled" disabled>
+                                    You Already Own This NFT!
+                                </button>
+                            {% elif nft.owner_count >= nft.nft_supply %}
+                                <button type="button" class="mint-btn btn-disabled" disabled>
+                                    Buy From Secondary Market!
+                                </button>
+                            {% else %}
+                                <button type="submit" class="mint-btn">
+                                    Transfer
+                                </button>
+                            {% endif %}
+                        </form>
+                    </div>
+                    
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <span class="empty-icon">🖼️</span>
+            <p>The gallery is empty. {% if current_user.is_admin %}Upload some art to see it here!{% endif %}</p>
+        </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}{{ username }}'s NFT Dashboard{% endblock %}
+
+{% block content %}
+    <div class="page-title">Portfolio Overview</div>
+
+    <div class="dashboard-top-row">
+        
+        <div class="section flex-1 mb-0">
+            <h3>My Wallet</h3>
+            {% if wallet %}
+                <div class="wallet-row">
+                    <div class="wallet-address">{{ wallet.wallet_address }}</div>
+                    <button class="copy-btn"
+                        onclick="navigator.clipboard.writeText('{{ wallet.wallet_address }}'); this.innerText='✅ Copied!'; setTimeout(()=>this.innerText='📋 Copy', 1500)">
+                        📋 Copy
+                    </button>
+                </div>
+            {% else %}
+                <div class="empty-state" style="padding: 24px 0;">
+                    <span class="empty-icon" style="font-size: 32px;">👛</span>
+                    <p>No wallet created yet. <a href="/create_wallet/{{ username }}" class="text-indigo">Create one</a> before minting.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="section stat-box flex-1 mb-0 text-center">
+            <h3>Total Transactions</h3>
+            <p class="stat-num text-purple">{{ transactions|length }}</p>
+        </div>
+
+    </div>
+
+    <div class="section">
+        <h3>Transaction History</h3>
+        {% if transactions %}
+            <ul>
+                {% for tx in transactions %}
+                    {% if tx.tx_type == "mint_nft" or tx.tx_type == "admin_nft_mint" %}
+                        <li class="tx-item">
+                            <span>
+                                <span class="tx-mint">NFT Minted</span> — <strong>1 Asset</strong> Created
+                            </span>
+                            <span class="tx-hash" title="{{ tx.tx_hash }}">Tx Hash: {{ tx.tx_hash[:16] }}...</span>
+                            <span class="tx-timestamp">{{ tx.timestamp.strftime('%d %b %Y | %H:%M') }}</span>
+                        </li>
+                    {% else %}
+                        <li class="tx-item">
+                            <span>
+                                {% if tx.receiver_id == user.id %}
+                                    <span class="text-success font-bold">NFT Acquired</span>
+                                {% else %}
+                                    <span class="text-warning font-bold">NFT Transferred</span>
+                                {% endif %}
+                                {% if tx.nft_id %}
+                                    <span class="text-muted ml-12 text-xs">(NFT ID: {{ tx.nft_id }})</span>
+                                {% endif %}
+                            </span>
+                            <span class="tx-hash" title="{{ tx.tx_hash }}">Tx Hash: {{ tx.tx_hash[:16] }}...</span>
+                            <span class="tx-timestamp">{{ tx.timestamp.strftime('%d %b %Y | %H:%M') }}</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="empty-state">
+                <span class="empty-icon">📭</span>
+                <p>No transactions recorded yet.</p>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

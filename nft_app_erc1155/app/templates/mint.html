@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Upload NFT | Admin{% endblock %}
+
+{% block content %}
+    <div class="admin-section">
+        <div class="section admin-panel-box">
+            <div class="text-center mb-20 admin-panel-header">
+                <h3 class="admin-title">Admin Panel to Mint NFTs</h3>
+                <p class="text-muted text-xs">Upload the image and add NFT details</p>
+            </div>
+            
+            <form action="{{ url_for('mint_nft', username=user.username) }}" method="POST" enctype="multipart/form-data">
+                
+                <div class="form-group">
+                    <label for="nft_name">NFT Name</label>
+                    <input type="text" id="nft_name" name="nft_name" required placeholder="e.g. My Cool Artwork">
+                </div>
+                
+                <div class="form-group">
+                    <label for="nft_description">Description</label>
+                    <textarea id="nft_description" name="nft_description" required placeholder="Enter NFT description..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="file">Artwork File (PNG, JPG)</label>
+                    <input type="file" id="file" name="file" accept="image/png, image/jpeg" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="nft_supply">NFT Supply</label>
+                    <input type="number" id="nft_supply" name="nft_supply" class="input-short" required min="1" placeholder="e.g. 100">
+                </div>
+                
+                <button type="submit" class="mt-16">Upload & Mint</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
