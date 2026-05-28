@@ -3,7 +3,7 @@
 {% block title %}{{ username }}'s NFT Dashboard{% endblock %}
 
 {% block content %}
-    <div class="page-title">Portfolio Overview</div>
+    <div class="page-title text-center">NFT Portal — Welcome, {{ username }}!</div>
 
     <div class="dashboard-top-row">
         
@@ -18,8 +18,8 @@
                     </button>
                 </div>
             {% else %}
-                <div class="empty-state" style="padding: 24px 0;">
-                    <span class="empty-icon" style="font-size: 32px;">👛</span>
+                <div class="empty-state">
+                    <span class="empty-icon">👛</span>
                     <p>No wallet created yet. <a href="/create_wallet/{{ username }}" class="text-indigo">Create one</a> before minting.</p>
                 </div>
             {% endif %}
@@ -37,30 +37,86 @@
         {% if transactions %}
             <ul>
                 {% for tx in transactions %}
+                    
                     {% if tx.tx_type == "mint_nft" or tx.tx_type == "admin_nft_mint" %}
                         <li class="tx-item">
                             <span>
-                                <span class="tx-mint">NFT Minted</span> — <strong>1 Asset</strong> Created
+                                <span class="tx-mint">NFT Minted</span> 
+                                <span class="text-muted ml-12 text-xs">(Creator: {{ tx.sender.username }})</span>
                             </span>
-                            <span class="tx-hash" title="{{ tx.tx_hash }}">Tx Hash: {{ tx.tx_hash[:16] }}...</span>
-                            <span class="tx-timestamp">{{ tx.timestamp.strftime('%d %b %Y | %H:%M') }}</span>
+                            
+                            <span class="text-purple font-bold">1 Asset</span>
+                            
+                            <a href="#" class="tx-hash" title="Click to view transaction: {{ tx.tx_hash }}">
+                                Tx: {{ tx.tx_hash[:16] }}...
+                            </a>
+                            
+                            <span class="tx-timestamp">{{ tx.timestamp.strftime('%d %b %Y | %I:%M %p') }}</span>
                         </li>
+                        
+                    {% elif tx.tx_type == "royalty_payment" %}
+                        <li class="tx-item">
+                            <span>
+                                {% if tx.receiver_id == user.id %}
+                                    <span class="text-success font-bold">Royalty Received</span>
+                                    <span class="text-muted ml-12 text-xs">(From: {{ tx.sender.username }})</span>
+                                {% else %}
+                                    <span class="text-warning font-bold">Royalty Paid</span>
+                                    <span class="text-muted ml-12 text-xs">(To: {{ tx.receiver.username }})</span>
+                                {% endif %}
+                                
+                                {% if tx.nft_id %}
+                                    <span class="text-muted ml-12 text-xs">(NFT ID: {{ tx.nft_id }})</span>
+                                {% endif %}
+                            </span>
+                            
+                            <span>
+                                {% if tx.receiver_id == user.id %}
+                                    <span class="text-success font-bold">+{{ tx.amount }} Units</span>
+                                {% else %}
+                                    <span class="text-danger font-bold">-{{ tx.amount }} Units</span>
+                                {% endif %}
+                            </span>
+                            
+                            <a href="#" class="tx-hash" title="Click to view transaction: {{ tx.tx_hash }}">
+                                Tx: {{ tx.tx_hash[:16] }}...
+                            </a>
+                            
+                            <span class="tx-timestamp">{{ tx.timestamp.strftime('%d %b %Y | %I:%M %p') }}</span>
+                        </li>
+                        
                     {% else %}
                         <li class="tx-item">
                             <span>
                                 {% if tx.receiver_id == user.id %}
                                     <span class="text-success font-bold">NFT Acquired</span>
+                                    <span class="text-muted ml-12 text-xs">(From: {{ tx.sender.username }})</span>
                                 {% else %}
                                     <span class="text-warning font-bold">NFT Transferred</span>
+                                    <span class="text-muted ml-12 text-xs">(To: {{ tx.receiver.username }})</span>
                                 {% endif %}
+                                
                                 {% if tx.nft_id %}
                                     <span class="text-muted ml-12 text-xs">(NFT ID: {{ tx.nft_id }})</span>
                                 {% endif %}
                             </span>
-                            <span class="tx-hash" title="{{ tx.tx_hash }}">Tx Hash: {{ tx.tx_hash[:16] }}...</span>
-                            <span class="tx-timestamp">{{ tx.timestamp.strftime('%d %b %Y | %H:%M') }}</span>
+                            
+                            <span>
+                                {% if tx.receiver_id == user.id %}
+                                    <span class="text-success font-bold">+1 Asset</span>
+                                {% else %}
+                                    <span class="text-danger font-bold">-1 Asset</span>
+                                {% endif %}
+                            </span>
+                            
+                            <a href="#" class="tx-hash" title="Click to view transaction: {{ tx.tx_hash }}">
+                                Tx: {{ tx.tx_hash[:16] }}...
+                            </a>
+                            
+                            <span class="tx-timestamp">{{ tx.timestamp.strftime('%d %b %Y | %I:%M %p') }}</span>
                         </li>
                     {% endif %}
+                    
                 {% endfor %}
             </ul>
         {% else %}

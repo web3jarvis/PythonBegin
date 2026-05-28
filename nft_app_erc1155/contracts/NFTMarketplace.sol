@@ -10,7 +10,7 @@ contract NFTMarketplace is ERC1155, Ownable, ERC2981 {
     using Strings for uint256;
     mapping(uint256 => string) private _tokenURIs;
     constructor(address initialOwner) ERC1155("") Ownable(initialOwner){
-        _setDefaultRoyalty(msg.sender, 1000);
+        _setDefaultRoyalty(initialOwner, 1000);
     }
 
     function mintNFT(address to, uint256 id, uint256 nft_supply, string memory tokenURI) external onlyOwner {
@@ -24,6 +24,14 @@ contract NFTMarketplace is ERC1155, Ownable, ERC2981 {
 
     function transferNFT(address from, address to, uint256 id, uint256 amount) external {
         safeTransferFrom(from, to, id, amount, "");
+    }
+
+    function setRoyalty(address receiver, uint96 feeNumerator) external onlyOwner {
+        _setDefaultRoyalty(receiver, feeNumerator);
+    }
+
+    function getRoyaltyInfo(uint256 tokenId, uint256 salePrice) external view returns (address receiver, uint256 royaltyAmount) {
+        return royaltyInfo(tokenId, salePrice);
     }
 
     function supportsInterface(bytes4 interfaceId) public view override(ERC1155, ERC2981) returns (bool) {

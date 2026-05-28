@@ -105,6 +105,7 @@ body.auth-page .theme-switch-container {
 .text-xs { font-size: 12px; }
 .text-danger { color: #ef4444; }
 .text-success { color: #10b981; }
+.text-warning { color: #f59e0b; }
 .text-purple { color: #a855f7; }
 .mb-0 { margin-bottom: 0 !important; }
 .mb-20 { margin-bottom: 20px; }
@@ -112,6 +113,7 @@ body.auth-page .theme-switch-container {
 .mt-24 { margin-top: 24px; }
 .ml-12 { margin-left: 12px; }
 .flex-1 { flex: 1; }
+.justify-center { justify-content: center; }
 
 /* ── Auth pages ── */
 body.auth-page {
@@ -196,21 +198,6 @@ textarea::placeholder {
 textarea {
     resize: vertical;
     min-height: 100px;
-}
-
-input[type="file"] {
-    padding: 10px 16px;
-}
-
-input[type="file"]::file-selector-button {
-    background: var(--text-main);
-    color: var(--body-bg);
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    margin-right: 16px;
-    cursor: pointer;
-    font-weight: 600;
 }
 
 /* ── Buttons ── */
@@ -387,7 +374,6 @@ body.inner-page {
     margin-bottom: 24px;
 }
 
-/* 💎 New Dashboard Grid Layout 💎 */
 .dashboard-top-row {
     display: flex;
     gap: 32px;
@@ -422,7 +408,7 @@ body.inner-page {
 }
 
 .wallet-address {
-    font-family: monospace;
+    font-family: 'SFMono-Regular', Consolas, monospace;
     font-size: 14px;
     color: var(--accent-yellow);
     background: var(--input-bg);
@@ -450,14 +436,13 @@ body.inner-page {
     margin: 0 auto;
 }
 
-/* ── 💎 GALLERY GRID & CLASSY NFT CARDS 💎 ── */
+/* ── GALLERY GRID & CLASSY NFT CARDS ── */
 .gallery-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 32px;
 }
 
-/* Card Container */
 .nft-item {
     background: var(--card-panel-bg);
     border: 1px solid var(--panel-border);
@@ -477,7 +462,6 @@ body.inner-page {
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5); 
 }
 
-/* Top Section containing Image and Info */
 .nft-content-top {
     flex: 1; 
     display: flex;
@@ -548,7 +532,6 @@ body.inner-page {
     overflow: hidden;
 }
 
-/* Structured Key-Value Metadata Box */
 .nft-meta-details {
     margin-top: auto;
     background: var(--input-bg);
@@ -579,7 +562,6 @@ body.inner-page {
     font-size: 12px;
 }
 
-/* Bottom Wrapper for Buttons */
 .nft-action-wrapper {
     padding: 0 24px 24px 24px;
 }
@@ -608,7 +590,23 @@ body.inner-page {
 }
 
 .tx-mint { color: var(--accent-yellow); font-weight: 600; }
-.tx-hash { color: var(--text-muted); font-size: 12px; font-family: monospace; }
+
+/* 💎 TX HASH HYPERLINK FIX 💎 */
+.tx-hash { 
+    color: var(--text-muted); 
+    font-size: 12px; 
+    font-family: 'SFMono-Regular', Consolas, monospace; 
+    text-decoration: none; /* Removed ugly blue line */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+.tx-hash:hover {
+    color: var(--accent-yellow);
+    background: var(--input-bg);
+}
+
 .tx-timestamp { color: var(--text-muted); font-size: 13px; text-align: right; }
 
 /* ── Flash Messages ── */
@@ -662,7 +660,7 @@ input[type="file"]::file-selector-button:hover {
     transform: translateY(-1px);
 }
 
-/* ── Mint Page Specific Layout Classes (Zero Inline Styles) ── */
+/* ── Mint Page Specific Layout Classes ── */
 .admin-panel-box {
     padding: 32px;
 }

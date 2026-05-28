@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from db import SessionLocal, Base, engine
 from models import NFTCollection, User, Wallet, Transaction
-from blockchain.ape_util import deploy_and_mint_nft, transfer_nft_owner
+from blockchain.ape_util import deploy_and_mint_nft, set_owner_royalty, transfer_nft_owner
 from datetime import datetime
 import os
 
@@ -364,6 +364,19 @@ def transfer_nft(username, id):
                                     tx_hash=str(transfer_nft_txn_hash), 
                                     timestamp=datetime.now())
         db_session.add(transfer_nft_tx)
+        
+        nft_owner_wallet = db_session.query(Wallet).filter_by(wallet_ownerid=nft.owner_id).first()
+        royalty_receipt_hash = set_owner_royalty(nft.owner_id - 1, nft_owner_wallet.wallet_address, 1000)
+        royalty_receipt_tx = Transaction(
+                                    sender_id=current_user.id, 
+                                    receiver_id=nft.owner_id, 
+                                    amount=0.01, 
+                                    tx_type='royalty_payment', 
+                                    nft_id=nft.id, 
+                                    tx_hash=str(royalty_receipt_hash), 
+                                    timestamp=datetime.now())
+        db_session.add(royalty_receipt_tx)
+        
         db_session.commit()
         success = True
     except Exception as e:

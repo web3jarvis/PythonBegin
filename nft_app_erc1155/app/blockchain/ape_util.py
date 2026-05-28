@@ -19,3 +19,9 @@ def transfer_nft_owner(account_index, to_address, token_id, amount):
     nft_contract = get_contract(account)
     txn_receipt = nft_contract.transferNFT(account.address, to_address, token_id, amount, sender=account)
     return txn_receipt.txn_hash
+
+def set_owner_royalty(account_index, recipient_address, fee_numerator):
+    account = accounts.test_accounts[account_index]
+    nft_contract = get_contract(account)
+    txn_receipt = nft_contract.setRoyalty(recipient_address, fee_numerator, sender=account)
+    return txn_receipt.txn_hash
